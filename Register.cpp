@@ -120,3 +120,48 @@
 	}
 	}
 
+	bool User::Login(std::string username1, std::string password1, HWND hDlg)
+	{
+		try {
+			sql::mysql::MySQL_Driver *driver;
+			sql::Connection *con;
+			sql::Statement *stmt;
+			sql::ResultSet *res;
+			driver = sql::mysql::get_mysql_driver_instance();
+			con = driver->connect("tcp://127.0.0.1:3306", "root", "");
+			con->setSchema("test");
+			stmt = con->createStatement();
+			//select all where username or email matches
+			std::stringstream query;
+			query << "SELECT * FROM user where username=\'" << username1.c_str() << "\'";
+			std::string ssa = query.str();
+			res = stmt->executeQuery(sql::SQLString(ssa.c_str()));
+
+			if (!res->next())
+			{
+				MessageBox(hDlg, LPCSTR("username not found"), NULL, MB_OK);
+			}
+
+			else if (res->next())
+			{
+				if ((res->getString(1) == username1.c_str()) && (res->getString == password1))
+				{
+
+				}
+			}
+		}
+		catch (sql::SQLException &e)
+		{
+			std::stringstream s;
+			s << "# ERR: SQLException in " << __FILE__;
+			s << "(" << __FUNCTION__ << ") on line " << __LINE__ << std::endl;
+			s << "# ERR: " << e.what();
+			s << " (MySQL error code: " << e.getErrorCode();
+			s << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+			std::string f = s.str();
+			MessageBox(hDlg,
+				LPCSTR(f.c_str()),
+				NULL,
+				MB_OK);
+		}
+	}
